@@ -50,3 +50,13 @@ func TestList(t *testing.T) {
 	assert.Equal(t, "Kurniawan", client.LPop(ctx, "name").Val())
 	assert.Equal(t, "Khannedy", client.LPop(ctx, "name").Val())
 }
+
+func TestSet(t *testing.T) {
+	client.SAdd(ctx, "category", "fashion")
+	client.SAdd(ctx, "category", "fashion")
+	client.SAdd(ctx, "category", "electronic")
+	client.SAdd(ctx, "category", "electronic")
+
+	assert.Equal(t, int64(2), client.SCard(ctx, "category").Val())
+	assert.Equal(t, []string{"fashion", "electronic"}, client.SMembers(ctx, "category").Val())
+}
