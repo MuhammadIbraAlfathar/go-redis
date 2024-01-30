@@ -110,3 +110,27 @@ func TestGeoLocation(t *testing.T) {
 	assert.Equal(t, []string{"Toko B", "Toko A"}, sellers)
 
 }
+
+func TestHyperLogLog(t *testing.T) {
+	client.PFAdd(ctx, "visitors", "john", "dimas", "ruly", "budi")
+	client.PFAdd(ctx, "visitors", "john", "joko", "ruly", "joni")
+	client.PFAdd(ctx, "visitors", "jaki", "akagami", "luffy", "joni")
+
+	total := client.PFCount(ctx, "visitors").Val()
+
+	assert.Equal(t, int64(9), total)
+}
+
+func TestPipeline(t *testing.T) {
+	_, err := client.Pipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		pipeliner.SetEx(ctx, "name", "john doe", 5*time.Second)
+		pipeliner.SetEx(ctx, "city", "Indonesia", 5*time.Second)
+
+		return nil
+	})
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, "john doe", client.Get(ctx, "name").Val())
+	assert.Equal(t, "Indonesia", client.Get(ctx, "city").Val())
+}
